@@ -54,7 +54,7 @@ const ProfileSchema = new Schema({
         required: true
       },
       to: {
-        type: date
+        type: Date
       },
       current: {
         type: Boolean,
@@ -84,7 +84,7 @@ const ProfileSchema = new Schema({
         required: true
       },
       to: {
-        type: date
+        type: Date
       },
       current: {
         type: Boolean,
@@ -95,5 +95,27 @@ const ProfileSchema = new Schema({
       }
     }
   ],
-  social: {}
+  social: {
+    youtube: {
+      type: String
+    },
+    twitter: {
+      type: String
+    },
+    facebook: {
+      type: String
+    },
+    linkedin: {
+      type: String
+    },
+    instagram: {
+      type: String
+    }
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
 });
+
+module.exports = Profile = mongoose.model("profile", ProfileSchema);
