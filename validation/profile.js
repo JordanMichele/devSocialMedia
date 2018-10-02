@@ -3,7 +3,7 @@ const isEmpty = require("./is-empty");
 
 module.exports = function validateProfileInput(data) {
   let errors = {};
-
+  // Check if undefined or null ... turn into string so I can use Validator
   data.handle = !isEmpty(data.handle) ? data.handle : "";
   data.status = !isEmpty(data.status) ? data.status : "";
   data.skills = !isEmpty(data.skills) ? data.skills : "";
