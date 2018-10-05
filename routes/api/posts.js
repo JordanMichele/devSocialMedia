@@ -25,8 +25,8 @@ router.get("/test", (req, res) => {
 router.get("/", (req, res) => {
   Post.find()
     .sort({ date: -1 })
-    .then(posts => res.json(posts));
-  res.status(404).json({ nopostsfound: "No posts found" });
+    .then(posts => res.json(posts))
+    .catch(err => res.status(404));
 });
 
 // @Route   GET api/posts/:id
@@ -82,11 +82,84 @@ router.delete(
           // If the user IDs don't match
           if (post.user.toString() !== req.user.id) {
             return res
-              .status(401)
+              .status(401) // Unauthorized status
               .json({ notauthorized: "User not authorized" });
           }
           // Delete
           post.remove().then(() => res.json({ success: true }));
+        })
+        .catch(err => res.status(404).json({ postnotfound: "No post found" }));
+    });
+  }
+);
+
+// @Route   POST api/posts/like/:id
+// @Desc    Like Post
+// @Access  Private Route
+router.post(
+  "/like/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    // Find the user to get the profile
+    Profile.findOne({ user: req.user.id }).then(profile => {
+      // find the post by ID
+      Post.findById(req.params.id)
+        .then(post => {
+          // filter through likes array
+          // if user ID matches like user ID, hence length being > 0
+          // then
+          if (
+            post.likes.filter(like => like.user.id.toString() === req.user.id)
+              .length > 0
+          ) {
+            return res
+              .status(400)
+              .json({ alreadyliked: "User already liked this post" });
+          }
+
+          // If user did not like the post
+          // Add user id to likes array
+          post.likes.push({ user: req.user.id });
+
+          post.save().then(post => res.json(post));
+        })
+        .catch(err => res.status(404).json({ postnotfound: "No post found" }));
+    });
+  }
+);
+
+// @Route   POST api/posts/unlike/:id
+// @Desc    Unlike Post
+// @Access  Private Route
+router.post(
+  "/unlike/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    // Find the user , .then get the profile
+    Profile.findOne({ user: req.user.id }).then(profile => {
+      // find the post by ID
+      Post.findById(req.params.id)
+        .then(post => {
+          if (
+            // if user hasn't like the post (.length === 0)
+            // send error message
+            post.likes.filter(like => like.user.id.toString() === req.user.id)
+              .length === 0
+          ) {
+            return res
+              .status(400)
+              .json({ notliked: "You Haven't like this post" });
+          }
+
+          // Get the remove index
+          const removeIndex = post.likes
+            .map(item => item.user.toString())
+            .indexOf(req.user.id); // current user
+
+          // Splice out of array
+          post.likes.splice(removeIndex, 1);
+          // Save
+          post.save().then(post => res.json(post));
         })
         .catch(err => res.status(404).json({ postnotfound: "No post found" }));
     });
