@@ -168,7 +168,7 @@ router.post(
 
 // @Route   POST api/posts/comment/:id
 // @Desc    Add comment to post
-// @Access  Private Route
+// @Access  Private
 router.post(
   "/comment/:id",
   passport.authenticate("jwt", { session: false }),
@@ -202,7 +202,7 @@ router.post(
 
 // @Route   DELETE api/posts/comment/:id/:comment_id
 // @Desc    Remove comment from post
-// @Access  Private Route
+// @Access  Private
 router.delete(
   "/comment/:id/:comment_id",
   passport.authenticate("jwt", { session: false }),
